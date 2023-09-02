@@ -1,0 +1,212 @@
+# by DFT
+import colorama
+from tabulate import tabulate
+
+import argparse
+import signal
+from datetime import datetime
+from os import system
+from sys import exit
+from threading import Thread
+from time import sleep
+
+from scapy.layers.dot11 import Dot11, Dot11Beacon, Dot11ProbeResp, Dot11ProbeReq, Dot11Elt, sniff, RadioTap
+
+colorama.init()
+
+
+def keyboard_interrupt_handler(interrupt_signal, frame):
+    """
+    Keyboard (CTRL + C) interrupt function
+    """
+    print("Scanning finished")
+    print("KeyboardInterrupt ID: {} {} has been caught.".format(interrupt_signal, frame))
+    exit(1)
+
+
+def evaluate_sniffing_packet_ap(packet):
+    global probes
+    """
+    Evaluate wifi packet's and print to terminal
+
+    :param packet: sniffed Wifi packets
+    :type packet: class
+    """
+    start_c = '\33[33m'
+    end_c = '\033[0m'
+
+    if packet.haslayer(Dot11Beacon) or packet.haslayer(Dot11ProbeResp):
+        if packet.type == 0 and packet.subtype == 8:
+            bssid = packet[Dot11].addr2
+            ssid = packet[Dot11Elt].info.decode().strip()
+
+            if not ssid:
+                ssid = "N/A"
+
+            try:
+                dbm = packet.dBm_AntSignal
+            except:
+                dbm = "N/A"
+
+            stats = packet[Dot11Beacon].network_stats()
+            channel = stats.get("channel")
+            protocol = stats.get("crypto")
+            enc = next(iter(protocol))
+
+            if enc == 'OPN' or enc == 'WEP':
+                print(start_c + "{:<24} {:<35} {:<5} {:<7} {}".format(bssid, ssid, dbm, channel, enc) + end_c)
+            else:
+                print("{:<24} {:<35} {:<5} {:<7} {}".format(bssid, ssid, dbm, channel, enc))
+
+
+probes = []
+
+
+def evaluate_sniffing_packet_sta(packet):
+    global probes
+
+    if packet.haslayer(Dot11ProbeReq) and packet.haslayer(Dot11Elt):
+        agora = str(datetime.now())
+        if packet.type == 0 and packet.subtype == 4:
+            mac = str(packet.addr2).upper()
+            ssid = packet[Dot11Elt].info.decode().strip()
+            rssi = RadioTap.dBm_AntSignal
+
+            if not ssid:
+                ssid = "N/A"
+
+            try:
+                dbm = packet.dBm_AntSignal
+            except:
+                dbm = "N/A"
+
+            existing_item = next((item for item in probes if item["STA"] == mac), None)
+            if existing_item:
+                existing_item["last_seen"] = str(datetime.now())
+                existing_item["dBm_AntSignal"] = dbm
+                existing_item["spoted"] = existing_item["spoted"] + 1
+                if existing_item["SSID"] == "N/A":
+                    existing_item["SSID"] = ssid
+            if all(item["STA"] != mac for item in probes):
+                probe = {"STA": mac, "SSID": ssid, "last_seen": agora, "spoted": 1, "dBm_AntSignal": dbm}
+                probes.append(probe)
+
+            print("\033[2J")
+            print("channel_number", channel_number)
+
+            probes = sorted(probes, key=lambda x: x["dBm_AntSignal"], reverse=True)
+
+            print(tabulate(probes, headers={"STA": "\033[96mSTATION", "SSID": "SSID", "last_seen": "LAST SEEN",
+                                            "spoted": "TIMES SPOTED",
+                                            "dBm_AntSignal": "dBm_AntSignal\033[0m"}))  # , headers=['\033[96mSTA', 'SSID', 'LAST SEEN\033[0m']))
+
+            # print(tabulate(remote_ip_detected, headers=["\033[96mREMOTE IPS\033[0m"], tablefmt="grid"))
+
+
+def set_specific_channel(channel_number):
+    """
+    Set specific wifi channel
+
+    :param channel_number: channel number
+    :type channel_number: int
+    """
+    global interface
+
+    print("Set channel to {} on interface {}".format(channel_number, interface))
+#    system(f"iwconfig {interface} channel {channel_number}")
+
+
+channel_number = 1
+
+
+def change_channel():
+    """
+    Change wifi channels between 1 and 14
+    """
+    global interface, channel_number
+
+    print("Change channels for interface {}".format(interface))
+
+    while True:
+#        system(f"iwconfig {interface} channel {channel_number}")
+        channel_number = channel_number % 14 + 1
+        sleep(1.5)
+
+
+LOG_FILE = "LOG_myWi02.txt"
+
+
+def auto_save():
+    """
+    """
+    global LOG_FILE, probes
+    try:
+        print("Auto saving data...")
+        while True:
+            fp = None
+            sleep(30)
+            with open(LOG_FILE, "a") as fp:
+
+                fp.write("------------------\n" + str(datetime.now()) + "\n")
+                for probe in probes:
+                    #                    if probe:
+                    fp.write(str(probe) + "")
+                    fp.write("\n")
+
+            print("Saved.")
+    except Exception as e:
+        print("AUTO SAVE EXCEPTION***", e)
+
+
+def run_app():
+    """
+    Main function to parse arguments and run
+    """
+    global interface
+    global filter_results
+
+    description = 'Simple Wifi scanner for 2.4 GHz range'
+    epilog = 'The author of this code take no responsibility for your use or misuse'
+    parser = argparse.ArgumentParser(prog='ScanWifi.py', description=description, epilog=epilog)
+    parser.add_argument("interface", help='Your interface in monitor mode')
+    parser.add_argument('-c', '--channel', help='Channel number for 2.4 GHz range (min 1/max 14)', default=1, type=int)
+    parser.add_argument('--all', help='Scan on all channels for 2.4 GHz range', default=False, action='store_true')
+    parser.add_argument('--filter', help='Filter results only for STA (Probe Req)', default=False, action='store_true')
+    args = parser.parse_args()
+
+    if len(args.interface) < 1:
+        print('You did not provide any interface?')
+        exit(1)
+    else:
+        interface = args.interface
+
+    if not args.all and (args.channel < 1 or args.channel > 14):
+        print('You will scan on channel {}?'.format(args.channel))
+        exit(1)
+
+    if not args.all and args.channel in range(1, 14):
+        set_specific_channel(args.channel)
+
+    if args.all:
+        channel_changer = Thread(target=change_channel)
+        channel_changer.daemon = True
+        channel_changer.start()
+
+        auto_saver = Thread(target=auto_save)
+        auto_saver.daemon = True
+        auto_saver.start()
+
+    if args.filter:
+        print("-" * 85)
+        sniff(prn=evaluate_sniffing_packet_sta, iface=interface)
+    else:
+        print("-" * 85)
+        print("{:<24} {:<35} {:<5} {:<7} {}".format("BSSID", "SSID", "dbm", "CH", "ENC"))
+        print("-" * 85)
+        sniff(prn=evaluate_sniffing_packet_ap, iface=interface)
+
+
+if __name__ == "__main__":
+    interface = filter_results = None
+    signal.signal(signal.SIGINT, keyboard_interrupt_handler)
+    run_app()
