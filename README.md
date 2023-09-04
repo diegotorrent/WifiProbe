@@ -29,13 +29,15 @@ Wireless Probe Requests are management frames used by Wi-Fi devices (such as lap
 
 
 ### Significance of Wireless Probe Requests:
- **Network Discovery**: Probe requests are the first step in discovering available Wi-Fi networks. They allow devices to find networks even when they don't know the SSID in advance.
- 
- **Efficient Scanning**: Devices can use probe requests to efficiently scan for networks by sending out specific requests only for the SSIDs they are interested in, conserving power.
- 
- **User Interaction**: Probe requests facilitate user-friendly network selection interfaces, making it easy for users to connect to desired networks.
- 
- **Security Implications**: While necessary for network discovery, probe requests can also be used for malicious purposes, such as tracking or profiling user behavior. This has led to privacy concerns and countermeasures like MAC address randomization.
+
+> [!WARNING]
+> **Network Discovery**: Probe requests are the first step in discovering available Wi-Fi networks. They allow devices to find networks even when they don't know the SSID in advance.
+> 
+> **Efficient Scanning**: Devices can use probe requests to efficiently scan for networks by sending out specific requests only for the SSIDs they are interested in, conserving power.
+>
+> **User Interaction**: Probe requests facilitate user-friendly network selection interfaces, making it easy for users to connect to desired networks.
+>
+> **Security Implications**: While necessary for network discovery, probe requests can also be used for malicious purposes, such as tracking or profiling user behavior. This has led to privacy concerns and countermeasures like MAC address randomization.
 
 #### In summary, wireless probe requests are fundamental to the operation of Wi-Fi networks, allowing devices to discover and connect to available networks efficiently. They are a crucial part of the initial handshake between client devices and access points.
 ----
@@ -54,11 +56,4 @@ localmachine:~# ifconfig <interface-name> up
 localmachine:~# python3 script.py 
 
 ```
-
-> Highlights information that users should take into account, even when skimming.
-
-> [!IMPORTANT]
-> Crucial information necessary for users to succeed.
-
-> [!WARNING]
-> Critical content demanding immediate user attention due to potential risks.
+by DFT
