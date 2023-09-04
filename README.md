@@ -53,7 +53,16 @@ localmachine:~# ifconfig -a
 localmachine:~# ifconfig <interface-name> down
 localmachine:~# iwconfig <interface-name> mode monitor
 localmachine:~# ifconfig <interface-name> up
-localmachine:~# python3 script.py 
+localmachine:~# while [ true ]; do python3 myWifiProbe.py <interface-name>; done
 
 ```
+
+### Known issues:
+
+Sometimes an exception is shown related to scapy.
+
+> WARNING: Socket <scapy.arch.linux.L2ListenSocket object at 0x7faebfc7d6d0> failed with '[Errno 100] Network is down'. It was closed.
+
+---
+
 by DFT
