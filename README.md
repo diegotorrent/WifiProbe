@@ -9,23 +9,23 @@ Wireless Probe Requests are management frames used by Wi-Fi devices (such as lap
 ### Key Elements of a Wireless Probe Request:
 
  * SSID (Service Set Identifier): The SSID is the name of the Wi-Fi network the device is trying to discover or connect to. This field can be empty or contain the SSID of a specific network;
- * BSSID (Basic Service Set Identifier): The BSSID is the MAC address of the access point (AP) or router that the device is probing. If the device is trying to connect to a specific network, it will include the BSSID of that network's AP;
- * Additional Information: Probe requests may contain additional information such as the supported Wi-Fi standards (e.g., 802.11ac, 802.11n), the device's capabilities, and more.
+ * BSSID (Basic Service Set Identifier): The BSSID is the MAC address of the access point (AP) or router that the device is probing. If the device is trying to connect to a specific network, it will include the BSSID of that network's AP; 
+> [!NOTE]
+> Additional Information: Probe requests may contain additional information such as the supported Wi-Fi standards (e.g., 802.11ac, 802.11n), the device's capabilities, and more.
 
 ### How Wireless Probe Requests Work:
 
-> [!NOTE]
-> **Initiation**: When a Wi-Fi device is powered on or its wireless interface is enabled, it initiates a scanning process to discover nearby networks. This process begins with the device sending out one or more probe requests.
->
-> **Broadcast**: The probe request is broadcasted, meaning it is sent to all access points within range of the device. This is important because the device doesn't yet know which access points are available.
->
-> **AP Responses**: Access points within range that receive the probe request may respond with a Probe Response frame. These responses typically contain information about the AP's capabilities, security settings, and, most importantly, the SSID.
->
-> **SSID Collection**: The device collects these Probe Responses and uses the information to build a list of available networks, along with their signal strength, security, and other relevant details.
->
-> **User Interaction**: The device may then present this list to the user through a Wi-Fi management interface (e.g., on a smartphone or laptop), allowing the user to select a network to connect to.
->
-> **Connection**: Once the user selects a network, the device sends an association request to the chosen AP, initiating the process of connecting to the network.
+**Initiation**: When a Wi-Fi device is powered on or its wireless interface is enabled, it initiates a scanning process to discover nearby networks. This process begins with the device sending out one or more probe requests.
+
+**Broadcast**: The probe request is broadcasted, meaning it is sent to all access points within range of the device. This is important because the device doesn't yet know which access points are available.
+
+**AP Responses**: Access points within range that receive the probe request may respond with a Probe Response frame. These responses typically contain information about the AP's capabilities, security settings, and, most importantly, the SSID.
+
+**SSID Collection**: The device collects these Probe Responses and uses the information to build a list of available networks, along with their signal strength, security, and other relevant details.
+
+**User Interaction**: The device may then present this list to the user through a Wi-Fi management interface (e.g., on a smartphone or laptop), allowing the user to select a network to connect to.
+
+**Connection**: Once the user selects a network, the device sends an association request to the chosen AP, initiating the process of connecting to the network.
 
 
 ### Significance of Wireless Probe Requests:
