@@ -11,7 +11,7 @@ Wireless Probe Requests are management frames used by Wi-Fi devices (such as lap
  * SSID (Service Set Identifier): The SSID is the name of the Wi-Fi network the device is trying to discover or connect to. This field can be empty or contain the SSID of a specific network;
  * BSSID (Basic Service Set Identifier): The BSSID is the MAC address of the access point (AP) or router that the device is probing. If the device is trying to connect to a specific network, it will include the BSSID of that network's AP; 
 > [!NOTE]
-> Additional Information: Probe requests may contain additional information such as the supported Wi-Fi standards (e.g., 802.11ac, 802.11n), the device's capabilities, and more.
+> Probe requests may contain additional information such as the supported Wi-Fi standards (e.g., 802.11ac, 802.11n), the device's capabilities, and more.
 
 ### How Wireless Probe Requests Work:
 
